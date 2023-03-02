@@ -20,6 +20,26 @@ services:
     environment: 
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: todos
+  
+  web:
+    # Instead of referencing image: nginx:mainline-alpine here, use build to
+    # reference the current directory (.) and will look for a dockerfile by default
+    build: .
+    # The external directory location to map to an internal location
+    volumes:
+      - todo-mysql-data:/var/lib/nginx
+    # The external port mapping to internal port mapping
+    ports:
+      - "80:80"
+  node:
+    image: node:current-alpine
+    # Override the existing entrypoint to tell Node to execute the index.js file
+    entrypoint: ['node','src/index.js']
+    ports:
+      - "3000:3000"
+    # It is important that both containers can reference the same files
+    volumes:
+      - todo-mysql-data:/var/lib/nginx
 
 volumes:
   todo-mysql-data:
